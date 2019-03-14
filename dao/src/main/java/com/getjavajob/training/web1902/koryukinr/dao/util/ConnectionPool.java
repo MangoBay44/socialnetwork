@@ -23,26 +23,28 @@ public class ConnectionPool {
 
     public ConnectionPool() throws DAOException {
         try {
-//            NAME_RESOURCES = "database.properties";
-//            Properties properties = new Properties();
-//            properties.load(getClass().getClassLoader().getResourceAsStream(NAME_RESOURCES));
-//            DRIVER = properties.getProperty("database.driver");
-//            URL = properties.getProperty("database.url");
-//            USER = properties.getProperty("database.name");
-//            PASS = properties.getProperty("database.pass");
-//            Class.forName(DRIVER);
-//            pool = new LinkedBlockingQueue<>(POOL_SIZE);
-//            createConnection();
-            NAME_RESOURCES = "h2.properties";
+            NAME_RESOURCES = "database.properties";
             Properties properties = new Properties();
             properties.load(getClass().getClassLoader().getResourceAsStream(NAME_RESOURCES));
-            DRIVER = properties.getProperty("jdbc.driver");
-            URL = properties.getProperty("jdbc.url");
-            USER = properties.getProperty("jdbc.username");
-            PASS = properties.getProperty("jdbc.password");
+            DRIVER = properties.getProperty("database.driver");
+            URL = properties.getProperty("database.url");
+            USER = properties.getProperty("database.name");
+            PASS = properties.getProperty("database.pass");
             Class.forName(DRIVER);
             pool = new LinkedBlockingQueue<>(POOL_SIZE);
             createConnection();
+
+//            NAME_RESOURCES = "h2.properties";
+//            Properties properties = new Properties();
+//            properties.load(getClass().getClassLoader().getResourceAsStream(NAME_RESOURCES));
+//            DRIVER = properties.getProperty("jdbc.driver");
+//            URL = properties.getProperty("jdbc.url");
+//            USER = properties.getProperty("jdbc.username");
+//            PASS = properties.getProperty("jdbc.password");
+//            Class.forName(DRIVER);
+//            pool = new LinkedBlockingQueue<>(POOL_SIZE);
+//            createConnection();
+
         } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
             throw new DAOException("Failed ConnectionPool constructor from DAO layer", e);
         }
