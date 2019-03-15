@@ -13,9 +13,13 @@ public class AccountService {
     private AccountDAO accountDAO;
     private FriendDAO friendDAO;
 
-    public AccountService() throws DAOException {
-        accountDAO = new AccountDAO();
-        friendDAO = new FriendDAO();
+    public AccountService() throws ServiceException {
+        try {
+            accountDAO = new AccountDAO();
+            friendDAO = new FriendDAO();
+        } catch (DAOException e) {
+            throw new ServiceException("Failed create constructor from service layer", e);
+        }
     }
 
     public AccountService(AccountDAO accountDAO, FriendDAO friendDAO) {

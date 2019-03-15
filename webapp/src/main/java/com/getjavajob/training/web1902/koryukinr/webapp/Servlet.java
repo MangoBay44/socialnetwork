@@ -17,9 +17,9 @@ public class Servlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        accountService = new AccountService();
         List<Account> accountList;
         try {
+            accountService = new AccountService();
             accountList = accountService.getAllAccounts();
             listIterator = accountList.listIterator();
         } catch (ServiceException e) {
