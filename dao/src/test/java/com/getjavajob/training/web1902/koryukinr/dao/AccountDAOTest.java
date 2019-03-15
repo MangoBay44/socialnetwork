@@ -28,11 +28,15 @@ public class AccountDAOTest {
         File file = new File(AccountDAOTest.class.getResource("/create.sql").getPath());
         Reader reader = new FileReader(file);
         account = new Account(4, "Саша", "Смирнов", "123-321", "89123459219", "London");
-        Connection connection = ConnectionPool.getPool().getConnection();
+
+        Properties properties = new Properties();
+        properties.load(getClass().getClassLoader().getResourceAsStream("h2.properties"));
+
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         RunScript.execute(connection, reader);
         connection.commit();
-        ConnectionPool.getPool().close(connection);
-        accountDAO = new AccountDAO();
+        ConnectionPool.getPool(properties).close(connection);
+        accountDAO = new AccountDAO(properties);
     }
 
     @Test

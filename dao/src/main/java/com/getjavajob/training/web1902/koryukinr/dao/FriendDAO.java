@@ -22,11 +22,23 @@ public class FriendDAO {
     private static final String SELECT_ALL_FRIEND = "SELECT * FROM account a INNER JOIN " + TABLE_NAME_FRIENDSHIP + " f ON a.id = f.AccountIdTo " +
             "WHERE AccountIdFrom = ?;";
 
-    public FriendDAO() {
+    private Properties properties;
+
+    public FriendDAO() throws DAOException {
+        properties = new Properties();
+        try {
+            properties.load(getClass().getClassLoader().getResourceAsStream("mysql.properties"));
+        } catch (IOException e) {
+            throw new DAOException("Failed create constructor FriendDAO from DAO layer", e);
+        }
+    }
+
+    public FriendDAO(Properties properties) {
+        this.properties = properties;
     }
 
     public void insert(Friend friendship) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(ADD_FRIEND1)) {
             preparedStatement.setInt(1, friendship.getAccountFrom().getId());
             preparedStatement.setInt(2, friendship.getAccountTo().getId());
@@ -47,12 +59,12 @@ public class FriendDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
     public void delete(Friend friendship) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_FRIEND1)) {
             preparedStatement.setInt(1, friendship.getAccountFrom().getId());
             preparedStatement.setInt(2, friendship.getAccountTo().getId());
@@ -73,12 +85,12 @@ public class FriendDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
     public List<Account> getAllFriends(Account account) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_FRIEND)) {
             preparedStatement.setInt(1, account.getId());
             List<Account> friends = new ArrayList<>();
@@ -92,12 +104,12 @@ public class FriendDAO {
         } catch (SQLException e) {
             throw new DAOException("Failed friends FriendDAO from DAO layer", e);
         } finally {
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
     public List<Account> getAllFriends(Group group) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_FRIEND)) {
             preparedStatement.setInt(1, group.getId());
             int k;
@@ -112,7 +124,7 @@ public class FriendDAO {
         } catch (SQLException e) {
             throw new DAOException("Failed friends FriendDAO from DAO layer", e);
         } finally {
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 }

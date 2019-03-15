@@ -23,12 +23,24 @@ public class AccountDAO extends AbstractDAO<Account> {
 //            + "?, Email = ?, Skype = ?, AdditionalInformation = ?, Password = ? WHERE ID = ?";
     private static final String UPDATE_ALL_TEST = "UPDATE " + TABLE_NAME_ACCOUNT + " SET FirstName = ?, LastName = ?, WorkPhone = ?, PersonalPhone = ?, HomeAddress = ? WHERE ID = ?";
 
-    public AccountDAO() {
+    private Properties properties;
+
+    public AccountDAO() throws DAOException {
+        properties = new Properties();
+        try {
+            properties.load(getClass().getClassLoader().getResourceAsStream("mysql.properties"));
+        } catch (IOException e) {
+            throw new DAOException("Failed create constructor AccountDAO from DAO layer", e);
+        }
+    }
+
+    public AccountDAO(Properties properties) {
+        this.properties = properties;
     }
 
     @Override
     public Account getById(int id) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (ResultSet resultSet = executeGetOrDelete(id, connection, SELECT_BY_ID).executeQuery()) {
             if (resultSet.next()) {
                 return createAccountFromResult(resultSet);
@@ -37,13 +49,13 @@ public class AccountDAO extends AbstractDAO<Account> {
         } catch (SQLException e) {
             throw new DAOException("Failed return account from DAO layer", e);
         } finally {
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
     @Override
     public void deleteById(int id) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = executeGetOrDelete(id, connection, DELETE_BY_ID)) {
             preparedStatement.execute();
             connection.commit();
@@ -55,7 +67,7 @@ public class AccountDAO extends AbstractDAO<Account> {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
@@ -71,7 +83,7 @@ public class AccountDAO extends AbstractDAO<Account> {
 
     @Override
     public List<Account> getAll() throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (ResultSet resultSet = connection.createStatement().executeQuery(SELECT_ALL)) {
             List<Account> accounts = new ArrayList<>();
             while (resultSet.next()) {
@@ -81,7 +93,7 @@ public class AccountDAO extends AbstractDAO<Account> {
         } catch (SQLException e) {
             throw new DAOException("Failed return all accounts from DAO layer", e);
         } finally {
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
@@ -97,7 +109,7 @@ public class AccountDAO extends AbstractDAO<Account> {
     }
 
     private void executeInsertOrUpdate(Account account, String query) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, account.getFirstName());
             preparedStatement.setString(2, account.getLastName());
@@ -115,7 +127,7 @@ public class AccountDAO extends AbstractDAO<Account> {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 

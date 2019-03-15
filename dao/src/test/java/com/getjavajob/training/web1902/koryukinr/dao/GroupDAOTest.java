@@ -22,15 +22,18 @@ public class GroupDAOTest {
     private Group group;
 
     @Before
-    public void init() throws FileNotFoundException, DAOException, SQLException {
+    public void init() throws IOException, DAOException, SQLException {
         File file = new File(GroupDAO.class.getResource("/create.sql").getPath());
         Reader reader = new FileReader(file);
 
+        Properties properties = new Properties();
+        properties.load(getClass().getClassLoader().getResourceAsStream("h2.properties"));
+
         group = new Group(4, "Sport");
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         RunScript.execute(connection, reader);
         connection.commit();
-        ConnectionPool.getPool().close(connection);
+        ConnectionPool.getPool(properties).close(connection);
         groupDAO = new GroupDAO();
     }
 

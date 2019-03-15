@@ -16,6 +16,7 @@ import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,10 +35,13 @@ public class FriendDAOTest {
         File file = new File(FriendDAO.class.getResource("/create.sql").getPath());
         Reader reader = new FileReader(file);
 
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Properties properties = new Properties();
+        properties.load(getClass().getClassLoader().getResourceAsStream("h2.properties"));
+
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         RunScript.execute(connection, reader);
         connection.commit();
-        ConnectionPool.getPool().close(connection);
+        ConnectionPool.getPool(properties).close(connection);
 
         AccountDAO accountDAO = new AccountDAO();
         friendDAO = new FriendDAO();

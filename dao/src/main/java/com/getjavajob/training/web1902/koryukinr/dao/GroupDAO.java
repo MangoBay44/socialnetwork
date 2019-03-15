@@ -18,12 +18,24 @@ public class GroupDAO extends AbstractDAO<Group> {
     private static final String INSERT_ALL = "INSERT INTO " + TABLE_NAME + " (Name, id) VALUES (?, ?)";
     private static final String UPDATE_ALL = "UPDATE " + TABLE_NAME + " SET Name = ? WHERE ID = ?";
 
-    public GroupDAO() {
+    private Properties properties;
+
+    public GroupDAO() throws DAOException {
+        properties = new Properties();
+        try {
+            properties.load(getClass().getClassLoader().getResourceAsStream("mysql.properties"));
+        } catch (IOException e) {
+            throw new DAOException("Failed create constructor GroupDAO from DAO layer", e);
+        }
+    }
+
+    public GroupDAO(Properties properties) {
+        this.properties = properties;
     }
 
     @Override
     public Group getById(int id) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (ResultSet resultSet = executeGetOrDelete(id, connection, SELECT_BY_ID).executeQuery()) {
             if (resultSet.next()) {
                 return createGroupFromResultSet(resultSet);
@@ -32,13 +44,13 @@ public class GroupDAO extends AbstractDAO<Group> {
         } catch (SQLException e) {
             throw new DAOException("Failed return GroupDAO from DAO layer", e);
         } finally {
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
     @Override
     public void deleteById(int id) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = executeGetOrDelete(id, connection, DELETE_BY_ID)) {
             preparedStatement.execute();
             connection.commit();
@@ -50,7 +62,7 @@ public class GroupDAO extends AbstractDAO<Group> {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
@@ -66,7 +78,7 @@ public class GroupDAO extends AbstractDAO<Group> {
 
     @Override
     public List<Group> getAll() throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (ResultSet resultSet = connection.createStatement().executeQuery(SELECT_ALL)) {
             List<Group> groups = new ArrayList<>();
             while (resultSet.next()) {
@@ -76,7 +88,7 @@ public class GroupDAO extends AbstractDAO<Group> {
         } catch (SQLException e) {
             throw new DAOException("Failed return all groups from DAO layer", e);
         } finally {
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 
@@ -94,7 +106,7 @@ public class GroupDAO extends AbstractDAO<Group> {
     }
 
     private void executeInsertOrUpdate(Group group, String query) throws DAOException {
-        Connection connection = ConnectionPool.getPool().getConnection();
+        Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, group.getName());
             preparedStatement.setInt(2, group.getId());
@@ -108,7 +120,7 @@ public class GroupDAO extends AbstractDAO<Group> {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ConnectionPool.getPool().close(connection);
+            ConnectionPool.getPool(properties).close(connection);
         }
     }
 }
