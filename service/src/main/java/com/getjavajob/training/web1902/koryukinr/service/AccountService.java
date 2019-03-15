@@ -13,7 +13,7 @@ public class AccountService {
     private AccountDAO accountDAO;
     private FriendDAO friendDAO;
 
-    public AccountService() {
+    public AccountService() throws DAOException {
         accountDAO = new AccountDAO();
         friendDAO = new FriendDAO();
     }
