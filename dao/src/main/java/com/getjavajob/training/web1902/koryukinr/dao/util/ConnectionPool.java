@@ -9,7 +9,7 @@ import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ConnectionPool {
-    private static final int POOL_SIZE = 5;
+    private static final int POOL_SIZE = 2;
     private static final int TIMEOUT = 0;
 
     private static ConnectionPool instance;

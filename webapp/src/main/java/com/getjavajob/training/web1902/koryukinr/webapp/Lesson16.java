@@ -22,7 +22,6 @@ public class Lesson16 extends HttpServlet {
         try {
             accountService = new AccountService();
             accountList = accountService.getAllAccounts();
-            accountService = new AccountService();
             listIterator = accountList.listIterator();
         } catch (ServiceException e) {
             e.printStackTrace();

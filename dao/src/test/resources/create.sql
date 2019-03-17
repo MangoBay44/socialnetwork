@@ -37,7 +37,7 @@ INSERT INTO account (id, FirstName, LastName, WorkPhone, PersonalPhone, HomeAddr
 VALUES(2, 'Амир', 'Мунипов', '956-231', '89123410414', 'SPB');
 
 INSERT INTO account (id, FirstName, LastName, WorkPhone, PersonalPhone, HomeAddress)
-VALUES(3, 'Маша', 'Соловьева', '993-113', '89112319595', 'Moscow');
+VALUES(3, 'Гульназ', 'Гайсина', '993-113', '89112319595', 'СПб');
 
 INSERT INTO grp (id, Name) VALUES (1, 'Music');
 INSERT INTO grp (id, Name) VALUES (2, 'Art');
