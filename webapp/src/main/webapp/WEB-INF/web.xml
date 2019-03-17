@@ -18,7 +18,7 @@
     </filter-mapping>
     <servlet>
         <servlet-name>Servlet</servlet-name>
-        <servlet-class>com.getjavajob.training.web1902.koryukinr.webapp.Servlet</servlet-class>
+        <servlet-class>com.getjavajob.training.web1902.koryukinr.webapp.Lesson16</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Servlet</servlet-name>

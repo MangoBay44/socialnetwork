@@ -29,7 +29,7 @@ public class FriendDAO {
         try {
             properties.load(getClass().getClassLoader().getResourceAsStream("mysql.properties"));
         } catch (IOException e) {
-            throw new DAOException("Failed create constructor FriendDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         }
     }
 
@@ -52,7 +52,7 @@ public class FriendDAO {
             }
             connection.commit();
         } catch (SQLException e) {
-            throw new DAOException("Failed insert FriendDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             try {
                 connection.rollback();
@@ -78,7 +78,7 @@ public class FriendDAO {
             }
             connection.commit();
         } catch (SQLException e) {
-            throw new DAOException("Failed delete FriendDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             try {
                 connection.rollback();
@@ -102,7 +102,7 @@ public class FriendDAO {
             }
             return friends;
         } catch (SQLException e) {
-            throw new DAOException("Failed friends FriendDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             ConnectionPool.getPool(properties).close(connection);
         }
@@ -122,7 +122,7 @@ public class FriendDAO {
             }
             return friends;
         } catch (SQLException e) {
-            throw new DAOException("Failed friends FriendDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             ConnectionPool.getPool(properties).close(connection);
         }

@@ -11,16 +11,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
 
-public class Servlet extends HttpServlet {
+public class Lesson16 extends HttpServlet {
     private AccountService accountService;
     private ListIterator<Account> listIterator;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         List<Account> accountList;
+
         try {
             accountService = new AccountService();
             accountList = accountService.getAllAccounts();
+            accountService = new AccountService();
             listIterator = accountList.listIterator();
         } catch (ServiceException e) {
             e.printStackTrace();

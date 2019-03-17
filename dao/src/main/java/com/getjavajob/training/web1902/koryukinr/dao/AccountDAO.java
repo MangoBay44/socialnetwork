@@ -3,9 +3,12 @@ package com.getjavajob.training.web1902.koryukinr.dao;
 import com.getjavajob.training.web1902.koryukinr.common.Account;
 import com.getjavajob.training.web1902.koryukinr.dao.exception.DAOException;
 import com.getjavajob.training.web1902.koryukinr.dao.util.ConnectionPool;
+import com.getjavajob.training.web1902.koryukinr.dao.util.ProcessingPhoto;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 public class AccountDAO extends AbstractDAO<Account> {
@@ -13,15 +16,12 @@ public class AccountDAO extends AbstractDAO<Account> {
     private static final String SELECT_ALL = "SELECT * FROM " + TABLE_NAME_ACCOUNT;
     private static final String SELECT_BY_ID = SELECT_ALL + " WHERE ID = ?";
     private static final String DELETE_BY_ID = "DELETE FROM " + TABLE_NAME_ACCOUNT + " WHERE ID = ?";
-    //    private static final String INSERT_ALL = "INSERT INTO " + TABLE_NAME_ACCOUNT + " (id, FirstName, MiddleName, LastName, DateOfBirth, " +
-//            "WorkPhone, PersonalPhone, HomeAddress, WorkAddress, Email, Skype, AdditionalInformation, Male, Password) " +
-//            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String INSERT_ALL_TEST = "INSERT INTO " + TABLE_NAME_ACCOUNT + " (FirstName, LastName, " +
-            "WorkPhone, PersonalPhone, HomeAddress, id) VALUES (?, ?, ?, ?, ?, ?)";
-    //    private static final String UPDATE_ALL = "UPDATE " + TABLE_NAME_ACCOUNT + " SET Male = ?, FirstName = ?, MiddleName = ?," +
-//            " LastName = ?, DateOfBirth = ?, WorkPhone = ?, PersonalPhone = ?, HomeAddress = ?, WorkAddress = "
-//            + "?, Email = ?, Skype = ?, AdditionalInformation = ?, Password = ? WHERE ID = ?";
-    private static final String UPDATE_ALL_TEST = "UPDATE " + TABLE_NAME_ACCOUNT + " SET FirstName = ?, LastName = ?, WorkPhone = ?, PersonalPhone = ?, HomeAddress = ? WHERE ID = ?";
+    private static final String INSERT_ALL = "INSERT INTO " + TABLE_NAME_ACCOUNT + " (FirstName, MiddleName, LastName, DateOfBirth, " +
+            "WorkPhone, PersonalPhone, HomeAddress, WorkAddress, Email, Skype, AdditionalInformation, Male, Password, Photo, id) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE_ALL = "UPDATE " + TABLE_NAME_ACCOUNT + " SET FirstName = ?, MiddleName = ?," +
+            " LastName = ?, DateOfBirth = ?, WorkPhone = ?, PersonalPhone = ?, HomeAddress = ?, WorkAddress = "
+            + "?, Email = ?, Skype = ?, AdditionalInformation = ?, Male = ?, Password = ?, Photo = ? WHERE ID = ?";
 
     private Properties properties;
 
@@ -30,7 +30,7 @@ public class AccountDAO extends AbstractDAO<Account> {
         try {
             properties.load(getClass().getClassLoader().getResourceAsStream("mysql.properties"));
         } catch (IOException e) {
-            throw new DAOException("Failed create constructor AccountDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         }
     }
 
@@ -47,7 +47,7 @@ public class AccountDAO extends AbstractDAO<Account> {
             }
             return null;
         } catch (SQLException e) {
-            throw new DAOException("Failed return account from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             ConnectionPool.getPool(properties).close(connection);
         }
@@ -60,7 +60,7 @@ public class AccountDAO extends AbstractDAO<Account> {
             preparedStatement.execute();
             connection.commit();
         } catch (SQLException e) {
-            throw new DAOException("Failed delete account from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             try {
                 connection.rollback();
@@ -73,12 +73,12 @@ public class AccountDAO extends AbstractDAO<Account> {
 
     @Override
     public void insert(Account account) throws DAOException {
-        executeInsertOrUpdate(account, INSERT_ALL_TEST);
+        executeInsertOrUpdate(account, INSERT_ALL);
     }
 
     @Override
     public void update(Account account) throws DAOException {
-        executeInsertOrUpdate(account, UPDATE_ALL_TEST);
+        executeInsertOrUpdate(account, UPDATE_ALL);
     }
 
     @Override
@@ -91,20 +91,29 @@ public class AccountDAO extends AbstractDAO<Account> {
             }
             return accounts;
         } catch (SQLException e) {
-            throw new DAOException("Failed return all accounts from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             ConnectionPool.getPool(properties).close(connection);
         }
     }
 
-    protected Account createAccountFromResult(ResultSet resultSet) throws SQLException {
+    Account createAccountFromResult(ResultSet resultSet) throws SQLException {
         Account account = new Account();
         account.setId(resultSet.getInt("id"));
         account.setFirstName(resultSet.getString("FirstName"));
+        account.setMiddleName(resultSet.getString("MiddleName"));
         account.setLastName(resultSet.getString("LastName"));
+        account.setDateOfBirth(resultSet.getDate("DateOfBirth"));
+        account.setPassword(resultSet.getString("Password"));
+        account.setMale(resultSet.getString("Male"));
+        account.setSkype(resultSet.getString("Skype"));
+        account.setEmail(resultSet.getString("Email"));
         account.setWorkPhone(resultSet.getString("WorkPhone"));
         account.setPersonalPhone(resultSet.getString("PersonalPhone"));
         account.setHomeAddress(resultSet.getString("HomeAddress"));
+        account.setWorkAddress(resultSet.getString("WorkAddress"));
+        account.setAdditionalInfo(resultSet.getString("AdditionalInformation"));
+        account.setPhoto(resultSet.getBytes("Photo"));
         return account;
     }
 
@@ -112,15 +121,24 @@ public class AccountDAO extends AbstractDAO<Account> {
         Connection connection = ConnectionPool.getPool(properties).getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, account.getFirstName());
-            preparedStatement.setString(2, account.getLastName());
-            preparedStatement.setString(3, account.getWorkPhone());
-            preparedStatement.setString(4, account.getPersonalPhone());
-            preparedStatement.setString(5, account.getHomeAddress());
-            preparedStatement.setInt(6, account.getId());
+            preparedStatement.setString(2, account.getMiddleName());
+            preparedStatement.setString(3, account.getLastName());
+            preparedStatement.setDate(4, (Date) account.getDateOfBirth());
+            preparedStatement.setString(5, account.getWorkPhone());
+            preparedStatement.setString(6, account.getPersonalPhone());
+            preparedStatement.setString(7, account.getHomeAddress());
+            preparedStatement.setString(8, account.getWorkAddress());
+            preparedStatement.setString(9, account.getWorkPhone());
+            preparedStatement.setString(10, account.getEmail());
+            preparedStatement.setString(11, account.getSkype());
+            preparedStatement.setString(12, account.getMale());
+            preparedStatement.setString(13, account.getPassword());
+            preparedStatement.setBlob(14, new ProcessingPhoto().createPhoto(account.getPhoto()));
+            preparedStatement.setInt(15, account.getId());
             preparedStatement.execute();
             connection.commit();
         } catch (SQLException e) {
-            throw new DAOException("Failed Insert of Update account from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             try {
                 connection.rollback();

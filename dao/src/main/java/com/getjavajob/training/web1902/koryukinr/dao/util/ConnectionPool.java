@@ -11,26 +11,25 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ConnectionPool {
     private static final int POOL_SIZE = 5;
     private static final int TIMEOUT = 0;
-    private static ConnectionPool instance;
 
+    private static ConnectionPool instance;
     private static String URL;
     private static String USER;
     private static String PASS;
-    private static String DRIVER;
 
     private LinkedBlockingQueue<Connection> pool;
 
     public ConnectionPool(Properties properties) throws DAOException {
         try {
-            DRIVER = properties.getProperty("driver");
+            String DRIVER = properties.getProperty("driver");
+            Class.forName(DRIVER);
             URL = properties.getProperty("url");
             USER = properties.getProperty("name");
             PASS = properties.getProperty("pass");
-            Class.forName(DRIVER);
             pool = new LinkedBlockingQueue<>(POOL_SIZE);
             createConnection();
         } catch (InterruptedException | SQLException | ClassNotFoundException e) {
-            throw new DAOException("Failed ConnectionPool constructor from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         }
     }
 
@@ -54,7 +53,7 @@ public class ConnectionPool {
             }
             return connection;
         } catch (SQLException | InterruptedException e) {
-            throw new DAOException("Failed get connection from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         }
     }
 
@@ -63,7 +62,7 @@ public class ConnectionPool {
             try {
                 pool.put(connection);
             } catch (InterruptedException e) {
-                throw new DAOException("Failed close connection from DAO layer", e);
+                throw new DAOException(e.getMessage(), e);
             }
         }
     }

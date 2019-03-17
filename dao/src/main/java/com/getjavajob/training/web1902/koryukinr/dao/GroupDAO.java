@@ -25,7 +25,7 @@ public class GroupDAO extends AbstractDAO<Group> {
         try {
             properties.load(getClass().getClassLoader().getResourceAsStream("mysql.properties"));
         } catch (IOException e) {
-            throw new DAOException("Failed create constructor GroupDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         }
     }
 
@@ -42,7 +42,7 @@ public class GroupDAO extends AbstractDAO<Group> {
             }
             return null;
         } catch (SQLException e) {
-            throw new DAOException("Failed return GroupDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             ConnectionPool.getPool(properties).close(connection);
         }
@@ -55,7 +55,7 @@ public class GroupDAO extends AbstractDAO<Group> {
             preparedStatement.execute();
             connection.commit();
         } catch (SQLException e) {
-            throw new DAOException("Failed delete GroupDAO from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             try {
                 connection.rollback();
@@ -86,7 +86,7 @@ public class GroupDAO extends AbstractDAO<Group> {
             }
             return groups;
         } catch (SQLException e) {
-            throw new DAOException("Failed return all groups from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             ConnectionPool.getPool(properties).close(connection);
         }
@@ -113,7 +113,7 @@ public class GroupDAO extends AbstractDAO<Group> {
             preparedStatement.execute();
             connection.commit();
         } catch (SQLException e) {
-            throw new DAOException("Failed Insert of Update group from DAO layer", e);
+            throw new DAOException(e.getMessage(), e);
         } finally {
             try {
                 connection.rollback();
